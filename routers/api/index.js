@@ -1,7 +1,7 @@
 import express from "express";
 
 import accountRouter from "./account/index.js";
-import artRouter from "./account/index.js";
+import artRouter from "./art/index.js";
 import authenticationRouter from "./authentication/index.js";
 
 const router = express.Router();
