@@ -6,7 +6,7 @@ const router = express.Router();
 router.get("/artCount", async (request, response) => {
   try {
     const count = await artModel.find().estimatedDocumentCount();
-    response.status(200).json({ success: true, count });
+    response.status(200).json({ success: true, payload: count });
   } catch (error) {
     response.status(500).json({ success: false, error });
   }
