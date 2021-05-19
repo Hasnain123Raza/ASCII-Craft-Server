@@ -18,7 +18,7 @@ router.post("/", async (request, response) => {
       response.status(200).json({ success: true, payload: savedResponse });
     } catch (error) {
       console.log(error);
-      response.status(500).json({ success: false, error });
+      response.status(500).json({ success: false });
     }
   }
 });
