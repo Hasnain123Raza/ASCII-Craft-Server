@@ -1,8 +1,11 @@
 import express from "express";
-import db from "./services/database/index.js";
+import passport from "passport";
 import session from "./services/session/index.js";
 
 import routers from "./routers/index.js";
+
+import "./services/database/index.js";
+import "./services/passport/index.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -13,6 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/", routers);
 
