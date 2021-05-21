@@ -20,8 +20,9 @@ router.post("/", async (request, response) => {
     const { username, password } = data;
 
     const duplicate = await userModel
-      .find({ username })
+      .findOne({ username })
       .collation({ locale: "en", strength: 1 });
+
     if (duplicate) {
       return response.status(400).json({
         success: false,
