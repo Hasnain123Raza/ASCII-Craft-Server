@@ -10,7 +10,7 @@ router.post("/", (request, response, next) => {
       return response.status(500).json({ success: false });
     }
     if (!user)
-      return response.status(200).json({ success: false, payload: info });
+      return response.status(200).json({ success: false, error: info });
 
     request.logIn(user, (error) => {
       if (error) {

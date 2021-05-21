@@ -20,7 +20,7 @@ const verifyCallback = async (username, password, done) => {
     if (!Boolean(user)) {
       return done(null, false, {
         message: "Username is invalid.",
-        path: "username",
+        path: ["username"],
       });
     }
 
@@ -28,7 +28,7 @@ const verifyCallback = async (username, password, done) => {
     if (!isPasswordCorrect) {
       return done(null, false, {
         message: "Password is invalid.",
-        path: "password",
+        path: ["password"],
       });
     }
 
