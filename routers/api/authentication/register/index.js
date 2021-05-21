@@ -21,7 +21,7 @@ router.post("/", async (request, response) => {
 
     const duplicate = await userModel
       .find({ username })
-      .collation({ locale: "en", strength: "1" });
+      .collation({ locale: "en", strength: 1 });
     if (duplicate) {
       return response.status(400).json({
         success: false,
