@@ -2,10 +2,13 @@ import express from "express";
 
 const router = express.Router();
 
-router.post("/", (request, response) => {
+router.get("/", (request, response) => {
   response
     .status(200)
-    .json({ success: true, payload: { authenticated: Boolean(request.user) } });
+    .json({
+      success: true,
+      payload: { authenticated: Boolean(request.user), user: request.user },
+    });
 });
 
 export default router;

@@ -1,8 +1,11 @@
 import express from "express";
 import artSchema from "./artSchema.js";
 import artModel from "../../../../services/database/models/art.js";
+import authenticatedMiddleware from "../../../../middlewares/authenticated.js";
 
 const router = express.Router();
+
+router.use(authenticatedMiddleware);
 
 router.post("/", async (request, response) => {
   const data = request.body;
