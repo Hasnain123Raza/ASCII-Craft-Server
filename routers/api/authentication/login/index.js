@@ -4,6 +4,12 @@ import passport from "passport";
 const router = express.Router();
 
 router.post("/", (request, response, next) => {
+  if (Boolean(request.user))
+    response.status(400).json({
+      success: false,
+      error: { authenticated: true },
+    });
+
   passport.authenticate("local", (error, user, info) => {
     if (error) {
       console.log(error);
