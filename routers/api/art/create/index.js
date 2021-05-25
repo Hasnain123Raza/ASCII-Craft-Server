@@ -2,6 +2,7 @@ import express from "express";
 import artSchema from "./artSchema.js";
 import artModel from "../../../../services/database/models/art.js";
 import authenticatedMiddleware from "../../../../middlewares/authenticated.js";
+import mongodb from "mongodb";
 
 const router = express.Router();
 
@@ -16,7 +17,10 @@ router.post("/", async (request, response) => {
     response.status(400).json({ success: false, error: { message, path } });
   } else {
     try {
-      const model = new artModel({ ...data });
+      const model = new artModel({
+        ...data,
+        creatorId: new mongodb.ObjectID(request.user._id),
+      });
       const savedResponse = await model.save();
       response.status(200).json({ success: true, payload: savedResponse });
     } catch (error) {

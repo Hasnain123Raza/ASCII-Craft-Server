@@ -9,10 +9,7 @@ const artSchema = new mongoose.Schema({
     default: Date.now,
   },
 
-  // ownerId: {
-  //   type: Schema.Types.ObjectId,
-  //   ref: "User",
-  // },
+  creatorId: mongoose.Schema.Types.ObjectId,
   likes: {
     type: Number,
     default: 0,
