@@ -8,8 +8,11 @@ router.get("/art/:artId", async (request, response) => {
 
   try {
     const art = await artModel.findById(artId);
-
-    response.status(200).json({ success: true, payload: art });
+    if (Boolean(art)) {
+      response.status(200).json({ success: true, payload: art });
+    } else {
+      response.status(404).json({ success: false });
+    }
   } catch (error) {
     console.log(error);
     response.status(500).json({ success: false });
