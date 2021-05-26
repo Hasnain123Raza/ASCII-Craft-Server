@@ -1,6 +1,7 @@
 import express from "express";
 import artSchema from "./artSchema.js";
 import artModel from "../../../../services/database/models/art.js";
+import userModel from "../../../../services/database/models/user.js";
 import authenticatedMiddleware from "../../../../middlewares/authenticated.js";
 import mongodb from "mongodb";
 
@@ -17,11 +18,20 @@ router.post("/", async (request, response) => {
     response.status(400).json({ success: false, error: { message, path } });
   } else {
     try {
+      const userId = new mongodb.ObjectId(request.user._id);
+
       const model = new artModel({
         ...data,
-        creatorId: new mongodb.ObjectID(request.user._id),
+        creatorId: userId,
       });
       const savedResponse = await model.save();
+
+      await userModel.updateOne(
+        { _id: userId },
+        { $push: { artIds: savedResponse._id } },
+        {}
+      );
+
       response.status(200).json({ success: true, payload: savedResponse });
     } catch (error) {
       console.log(error);

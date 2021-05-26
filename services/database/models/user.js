@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "normalUser",
   },
+  artIds: [mongoose.Schema.Types.ObjectId],
 });
 
 export default mongoose.model("User", userSchema);
