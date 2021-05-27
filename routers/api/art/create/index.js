@@ -24,15 +24,26 @@ router.post("/", async (request, response) => {
         ...data,
         creatorId: userId,
       });
-      const savedResponse = await model.save();
 
-      await userModel.updateOne(
-        { _id: userId },
-        { $push: { artIds: savedResponse._id } },
-        {}
-      );
+      const currentDate = Date.now();
+      const { artCreateCooldown } = request.user;
 
-      response.status(200).json({ success: true, payload: savedResponse });
+      if (artCreateCooldown < currentDate) {
+        const savedResponse = await model.save();
+
+        await userModel.updateOne(
+          { _id: userId },
+          {
+            $push: { artIds: savedResponse._id },
+            $set: { artCreateCooldown: currentDate + 60 * 1000 },
+          },
+          {}
+        );
+
+        response.status(200).json({ success: true, payload: savedResponse });
+      } else {
+        response.status(500).json({ success: false });
+      }
     } catch (error) {
       console.log(error);
       response.status(500).json({ success: false });

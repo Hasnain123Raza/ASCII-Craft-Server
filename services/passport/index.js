@@ -55,6 +55,7 @@ passport.deserializeUser(async (userId, done) => {
         _id: user._id,
         username: user.username,
         permission: user.permission,
+        artCreateCooldown: user.artCreateCooldown,
       });
     else return done(null, false);
   } catch (error) {
