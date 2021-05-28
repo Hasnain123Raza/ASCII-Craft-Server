@@ -19,7 +19,7 @@ router.get("/:userId", async (request, response) => {
             totalArtsCreated: { $size: "$artIds" },
           },
         },
-        { $unwind: "$artIds" },
+        { $unwind: { path: "$artIds", preserveNullAndEmptyArrays: true } },
         { $limit: 3 },
         {
           $group: {
