@@ -1,38 +1,23 @@
-import express, { request } from "express";
-import artModel from "../../../../services/database/models/art.js";
-import userModel from "../../../../services/database/models/user.js";
+import express from "express";
+import { getAllArtCount, getAllSimplifiedArts } from "./allArts.js";
+import { getUserArtCount, getUserSimplifiedArts } from "./userArts.js";
 import mongodb from "mongodb";
 
 const router = express.Router();
 
 router.get("/artCount", async (request, response) => {
-  try {
-    const count = await artModel.find().estimatedDocumentCount();
-    response.status(200).json({ success: true, payload: count });
-  } catch (error) {
-    response.status(500).json({ success: false, error });
-  }
-});
-
-router.get("/artCount/:userIdInput", async (request, response) => {
-  const { userIdInput } = request.params;
-
-  if (!validateUserId(userIdInput))
-    return response.status(400).json({ success: false });
+  const { userId } = request.query;
+  if (Boolean(userId) && !validateUserId(userId))
+    response.status(400).json({ success: false });
 
   try {
-    const userId = new mongodb.ObjectId(userIdInput);
+    const count = Boolean(userId)
+      ? await getUserArtCount(new mongodb.ObjectId(userId))
+      : await getAllArtCount();
 
-    const result = await userModel
-      .aggregate([
-        { $match: { _id: userId } },
-        { $project: { _id: 1, totalArtsCreated: { $size: "$artIds" } } },
-      ])
-      .exec();
+    if (!Boolean(count)) return response.status(500).json({ success: false });
 
-    response
-      .status(200)
-      .json({ success: true, payload: result[0].totalArtsCreated });
+    return response.status(200).json({ success: true, payload: count });
   } catch (error) {
     console.log(error);
     return response.status(500).json({ success: false });
@@ -40,83 +25,31 @@ router.get("/artCount/:userIdInput", async (request, response) => {
 });
 
 router.get(
-  "/simplifiedArts/:pageIndexInput/:pageSizeInput",
+  "/simplifiedArts/:pageIndex/:pageSize",
   async (request, response) => {
-    const { pageIndexInput, pageSizeInput } = request.params;
+    const params = request.params;
+    const pageIndex = parseInt(params.pageIndex);
+    const pageSize = parseInt(params.pageSize);
 
-    const pageIndex = parseInt(pageIndexInput);
-    const pageSize = parseInt(pageSizeInput);
     if (!validatePageIndexAndPageSize(pageIndex, pageSize))
       return response.status(400).json({ success: false });
 
-    try {
-      const arts = await artModel
-        .find({})
-        .skip(pageIndex * pageSize)
-        .limit(pageSize);
-      const simplifiedArts = arts.map(({ _id, title, description }) => ({
-        _id,
-        title,
-        description,
-      }));
-
-      response.status(200).json({ success: true, payload: simplifiedArts });
-    } catch (error) {
-      console.log(error);
-      return response.status(500).json({ success: false });
-    }
-  }
-);
-
-// DOES NOT VERIFIES WHETHER OR NOT USER EXISTS
-router.get(
-  "/simplifiedArts/:userIdInput/:pageIndexInput/:pageSizeInput",
-  async (request, response) => {
-    const { userIdInput, pageIndexInput, pageSizeInput } = request.params;
-
-    const pageIndex = parseInt(pageIndexInput);
-    const pageSize = parseInt(pageSizeInput);
-    if (!validatePageIndexAndPageSize(pageIndex, pageSize))
-      return response.status(400).json({ success: false });
-
-    if (!validateUserId(userIdInput))
+    const { userId } = request.query;
+    if (Boolean(userId) && !validateUserId(userId))
       return response.status(400).json({ success: false });
 
     try {
-      const userId = new mongodb.ObjectId(userIdInput);
-
-      const userAggregate = await userModel
-        .aggregate([
-          { $match: { _id: userId } },
-          { $project: { _id: 1, artIds: { $reverseArray: "$artIds" } } },
-          { $unwind: { path: "$artIds", preserveNullAndEmptyArrays: true } },
-          { $skip: pageIndex * pageSize },
-          { $limit: pageSize },
-          {
-            $group: {
-              _id: "$_id",
-              artIds: { $push: "$artIds" },
-            },
-          },
-        ])
-        .exec();
-
-      if (userAggregate.length === 0)
-        return response.status(200).json({ success: true, payload: [] });
-
-      const userData = userAggregate[0];
-      const userArtIds = userData.artIds;
-
-      const simplifiedArts = await artModel
-        .aggregate([
-          { $match: { _id: { $in: userArtIds } } },
-          { $project: { _id: 1, title: 1, description: 1 } },
-        ])
-        .exec();
+      const simplifiedArts = Boolean(userId)
+        ? await getUserSimplifiedArts(
+            new mongodb.ObjectId(userId),
+            pageIndex,
+            pageSize
+          )
+        : await getAllSimplifiedArts(pageIndex, pageSize);
 
       return response
         .status(200)
-        .json({ success: true, payload: simplifiedArts.reverse() });
+        .json({ success: true, payload: simplifiedArts });
     } catch (error) {
       console.log(error);
       return response.status(500).json({ success: false });
