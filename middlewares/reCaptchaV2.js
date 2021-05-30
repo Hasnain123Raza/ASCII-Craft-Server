@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 dotenv.config();
 
-export default async (request, response, next) => {
+export default async function reCaptchaV2(request, response, next) {
   const { recaptchaToken, ...payload } = request.body;
 
   const googleResponse = await fetch(
@@ -25,4 +25,4 @@ export default async (request, response, next) => {
 
   request.body = payload;
   next();
-};
+}
