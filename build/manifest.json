@@ -1,0 +1,8 @@
+{
+  "short_name": "ASCII-Craft",
+  "name": "ASCII-Craft",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
