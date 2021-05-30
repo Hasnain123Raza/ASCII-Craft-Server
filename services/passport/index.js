@@ -6,12 +6,6 @@ import bcrypt from "bcrypt";
 
 const verifyCallback = async (username, password, done) => {
   try {
-    const validationResult = userSchema.validate({ username, password });
-    if (validationResult.error) {
-      const { message, path } = validationResult.error.details[0];
-      return done(null, false, { message, path });
-    }
-
     const user = await userModel
       .findOne({ username })
       .collation({ locale: "en", strength: 1 })

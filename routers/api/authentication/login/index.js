@@ -1,30 +1,42 @@
 import express from "express";
 import passport from "passport";
+import userSchema from "../userSchema.js";
+
+import validateMiddleware from "../../../../middlewares/validate.js";
+import reCaptchaV2Middleware from "../../../../middlewares/reCaptchaV2.js";
 
 const router = express.Router();
 
-router.post("/", (request, response, next) => {
-  if (Boolean(request.user))
-    response.status(400).json({
-      success: false,
-      error: { authenticated: true },
-    });
+router.post(
+  "/",
+  validateMiddleware(userSchema),
+  reCaptchaV2Middleware,
+  (request, response, next) => {
+    if (Boolean(request.user))
+      response.status(400).json({
+        success: false,
+        error: { authenticated: true },
+      });
 
-  passport.authenticate("local", (error, user, info) => {
-    if (error) {
-      console.log(error);
-      return response.status(500).json({ success: false });
-    }
-    if (!user)
-      return response.status(200).json({ success: false, error: info });
+    const { username, password } = request.body.user;
+    request.body = { username, password };
 
-    request.logIn(user, (error) => {
+    passport.authenticate("local", (error, user, info) => {
       if (error) {
         console.log(error);
         return response.status(500).json({ success: false });
-      } else return response.status(200).json({ success: true });
-    });
-  })(request, response, next);
-});
+      }
+      if (!user)
+        return response.status(500).json({ success: false, error: info });
+
+      request.logIn(user, (error) => {
+        if (error) {
+          console.log(error);
+          return response.status(500).json({ success: false });
+        } else return response.status(200).json({ success: true });
+      });
+    })(request, response, next);
+  }
+);
 
 export default router;
