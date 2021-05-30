@@ -22,6 +22,12 @@ app.use(passport.session());
 
 app.use("/", routers);
 
+const __dirname = path.resolve(path.dirname(""));
+app.use(express.static(path.join(__dirname, "build")));
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log(`ASCII-Craft App listening at port: ${server.address().port}`);
 });
