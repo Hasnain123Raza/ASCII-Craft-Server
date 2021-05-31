@@ -39,7 +39,13 @@ router.post("/", validateMiddleware(artSchema), async (request, response) => {
 
       response.status(200).json({ success: true, payload: savedResponse });
     } else {
-      response.status(500).json({ success: false });
+      response.status(400).json({
+        success: false,
+        error: {
+          path: ["alert"],
+          message: "You need to wait a while before creating an art again.",
+        },
+      });
     }
   } catch (error) {
     console.log(error);
