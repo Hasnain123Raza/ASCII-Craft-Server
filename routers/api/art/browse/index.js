@@ -15,7 +15,8 @@ router.get("/artCount", async (request, response) => {
       ? await getUserArtCount(new mongodb.ObjectId(userId))
       : await getAllArtCount();
 
-    if (!Boolean(count)) return response.status(500).json({ success: false });
+    if (!Boolean(count) && count !== 0)
+      return response.status(500).json({ success: false });
 
     return response.status(200).json({ success: true, payload: count });
   } catch (error) {
