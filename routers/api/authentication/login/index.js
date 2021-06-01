@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import userSchema from "../userSchema.js";
+import loginFormSchema from "./loginFormSchema.js";
 
 import validateMiddleware from "../../../../middlewares/validate.js";
 import reCaptchaV2Middleware from "../../../../middlewares/reCaptchaV2.js";
@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  validateMiddleware(userSchema),
+  validateMiddleware(loginFormSchema),
   reCaptchaV2Middleware,
   (request, response, next) => {
     if (Boolean(request.user))
