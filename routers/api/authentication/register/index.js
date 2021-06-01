@@ -14,6 +14,12 @@ router.post(
   validateMiddleware(registerFormSchema),
   reCaptchaV2Middleware,
   async (request, response, next) => {
+    if (Boolean(request.user))
+      response.status(400).json({
+        success: false,
+        error: { authenticated: true },
+      });
+
     const { user } = request.body;
 
     try {
