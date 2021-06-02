@@ -1,7 +1,7 @@
 import express from "express";
 import userModel from "../../../../services/database/models/user.js";
 import sendMail from "../../../../services/mail/index.js";
-import bcrypt from "bcrypt";
+import getProtocolAndHostUrl from "../../../../services/utilities/getProtocolAndHostUrl.js";
 import jwt from "jsonwebtoken";
 import mongodb from "mongodb";
 
@@ -12,9 +12,7 @@ dotenv.config();
 
 const router = express.Router();
 
-router.use(authenticatedMiddleware);
-
-router.get("/", async (request, response) => {
+router.get("/", authenticatedMiddleware, async (request, response) => {
   const { _id, username, email, unverifiedEmailCooldown } = request.user;
 
   if (!Boolean(unverifiedEmailCooldown) && unverifiedEmailCooldown !== 0)
@@ -45,7 +43,9 @@ router.get("/", async (request, response) => {
           Hello ${username}! <br/> <br/>
           
           You have registered on our <b>ASCII-Craft</b> website using this email. <br/>
-          To verify this email please go to this link: <a href="${`http://localhost:3001/authentication/emailverification/${token}`}">verify</a> <br/> <br/>
+          To verify this email please go to this link: <a href="${`${getProtocolAndHostUrl(
+            request
+          )}/authentication/emailverification/${token}`}">verify</a> <br/> <br/>
           
           Please do not reply to this email as it is send through an automated bot. <br/>
           To contact us, please visit this link: <a href="#">contact</a>
