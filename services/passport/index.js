@@ -48,8 +48,10 @@ passport.deserializeUser(async (userId, done) => {
       return done(null, {
         _id: user._id,
         username: user.username,
-        permission: user.permission,
+        email: user.email,
+        rank: user.rank,
         artCreateCooldown: user.artCreateCooldown,
+        unverifiedEmailCooldown: user.unverifiedEmailCooldown,
       });
     else return done(null, false);
   } catch (error) {

@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
   username: String,
   email: String,
   password: String,
-  permission: {
+  rank: {
     type: String,
     default: "unverified",
   },
@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
   unverifiedEmailCooldown: {
     type: Number,
     default: 0,

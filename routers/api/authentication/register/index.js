@@ -26,17 +26,26 @@ router.post(
       const { username, email, password } = user;
 
       const duplicate = await userModel
-        .findOne({ username })
+        .findOne({ $or: [{ username }, { email: email.toLowerCase() }] })
         .collation({ locale: "en", strength: 1 });
 
       if (duplicate) {
-        return response.status(400).json({
-          success: false,
-          error: {
-            message: "Username is not unique.",
-            path: ["user", "username"],
-          },
-        });
+        if (duplicate.email === email)
+          return response.status(400).json({
+            success: false,
+            error: {
+              message: "Email has already been used.",
+              path: ["user", "email"],
+            },
+          });
+        else
+          return response.status(400).json({
+            success: false,
+            error: {
+              message: "Username is not unique.",
+              path: ["user", "username"],
+            },
+          });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -67,7 +76,7 @@ router.post(
                 _id: savedResponse._id,
                 username: savedResponse.username,
                 email: savedResponse.email,
-                permission: savedResponse.permission,
+                rank: savedResponse.rank,
               },
             });
         });
