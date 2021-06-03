@@ -56,7 +56,7 @@ router.post(
       });
       const savedResponse = await model.save();
 
-      request.body = { username, password };
+      request.body = { email, password };
       passport.authenticate("local", (error, user, info) => {
         if (error) {
           console.log(error);

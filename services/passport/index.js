@@ -1,20 +1,16 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import userModel from "../database/models/user.js";
-import userSchema from "../../routers/api/authentication/userSchema.js";
 import bcrypt from "bcrypt";
 
-const verifyCallback = async (username, password, done) => {
+const verifyCallback = async (email, password, done) => {
   try {
-    const user = await userModel
-      .findOne({ username })
-      .collation({ locale: "en", strength: 1 })
-      .exec();
+    const user = await userModel.findOne({ email }).exec();
 
     if (!Boolean(user)) {
       return done(null, false, {
-        message: "Username is invalid.",
-        path: ["user", "username"],
+        message: "Email is invalid.",
+        path: ["user", "email"],
       });
     }
 
@@ -33,7 +29,10 @@ const verifyCallback = async (username, password, done) => {
   }
 };
 
-const strategy = new LocalStrategy(verifyCallback);
+const strategy = new LocalStrategy(
+  { usernameField: "email", passwordField: "password" },
+  verifyCallback
+);
 
 passport.use(strategy);
 

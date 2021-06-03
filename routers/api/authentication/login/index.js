@@ -18,8 +18,8 @@ router.post(
         error: { authenticated: true },
       });
 
-    const { username, password } = request.body.user;
-    request.body = { username, password };
+    const { email, password } = request.body.user;
+    request.body = { email: email.toLowerCase(), password };
 
     passport.authenticate("local", (error, user, info) => {
       if (error) {
