@@ -20,10 +20,13 @@ router.get("/", authenticatedMiddleware, async (request, response) => {
   if (unverifiedEmailCooldown > Date.now())
     return response.status(500).json({
       success: false,
-      error: {
-        path: ["alert"],
-        message: "You need to wait a moment before another email can be sent.",
-      },
+      errors: [
+        {
+          path: ["alert"],
+          message:
+            "You need to wait a moment before another email can be sent.",
+        },
+      ],
     });
 
   try {
@@ -87,19 +90,23 @@ router.get("/:token", async (request, response) => {
     if (!Boolean(user))
       return response.status(500).json({
         success: false,
-        error: {
-          path: ["alert"],
-          message: "The token is invalid.",
-        },
+        errors: [
+          {
+            path: ["alert"],
+            message: "The token is invalid.",
+          },
+        ],
       });
 
     if (rank !== "unverified")
       return response.status(500).json({
         success: false,
-        error: {
-          path: ["alert"],
-          message: "Your email is already verified.",
-        },
+        errors: [
+          {
+            path: ["alert"],
+            message: "Your email is already verified.",
+          },
+        ],
       });
 
     await userModel.updateOne(
@@ -116,18 +123,22 @@ router.get("/:token", async (request, response) => {
     if (error.name === "TokenExpiredError")
       return response.status(500).json({
         success: false,
-        error: {
-          path: ["alert"],
-          message: "This token has expired. Please use a new token.",
-        },
+        errors: [
+          {
+            path: ["alert"],
+            message: "This token has expired. Please use a new token.",
+          },
+        ],
       });
     if (error.name === "SyntaxError")
       return response.status(500).json({
         success: false,
-        error: {
-          path: ["alert"],
-          message: "The token is invalid.",
-        },
+        errors: [
+          {
+            path: ["alert"],
+            message: "The token is invalid.",
+          },
+        ],
       });
 
     console.log(error);
