@@ -17,10 +17,12 @@ export default async function reCaptchaV2(request, response, next) {
   if (!success)
     return response.status(400).json({
       success: false,
-      error: {
-        path: ["form"],
-        message: "There was a problem with ReCaptcha. Please try again.",
-      },
+      errors: [
+        {
+          path: ["form"],
+          message: "There was a problem with ReCaptcha. Please try again.",
+        },
+      ],
     });
 
   request.body = payload;

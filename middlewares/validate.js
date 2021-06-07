@@ -8,7 +8,7 @@ export default function validate(validationSchema) {
       const { message, path } = validationResult.error.details[0];
       return response
         .status(400)
-        .json({ success: false, error: { message, path } });
+        .json({ success: false, errors: [{ path, message }] });
     }
 
     next();
