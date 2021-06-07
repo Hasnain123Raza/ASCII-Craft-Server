@@ -15,7 +15,12 @@ router.post(
     if (Boolean(request.user))
       response.status(400).json({
         success: false,
-        error: { authenticated: true },
+        errors: [
+          {
+            path: ["authenticated"],
+            message: "User is already authenticated.",
+          },
+        ],
       });
 
     const { email, password } = request.body.user;
@@ -27,7 +32,7 @@ router.post(
         return response.status(500).json({ success: false });
       }
       if (!user)
-        return response.status(500).json({ success: false, error: info });
+        return response.status(500).json({ success: false, errors: [info] });
 
       request.logIn(user, (error) => {
         if (error) {

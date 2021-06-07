@@ -33,28 +33,34 @@ router.post(
       if (!Boolean(passwordRecoveryToken))
         return response.status(400).json({
           success: false,
-          error: {
-            path: ["alert"],
-            message: "This token has expired. Please request a new one.",
-          },
+          errors: [
+            {
+              path: ["alert"],
+              message: "This token has expired. Please request a new one.",
+            },
+          ],
         });
 
       if (Date.now() > passwordRecoveryTimeout)
         return response.status(400).json({
           success: false,
-          error: {
-            path: ["alert"],
-            message: "This token has expired. Please request a new one.",
-          },
+          errors: [
+            {
+              path: ["alert"],
+              message: "This token has expired. Please request a new one.",
+            },
+          ],
         });
 
       if (token !== passwordRecoveryToken)
         return response.status(400).json({
           success: false,
-          error: {
-            path: ["alert"],
-            message: "This token has expired. Please request a new one.",
-          },
+          errors: [
+            {
+              path: ["alert"],
+              message: "This token has expired. Please request a new one.",
+            },
+          ],
         });
 
       const hashedPassword = await bcrypt.hash(password, 10);

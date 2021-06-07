@@ -17,7 +17,12 @@ router.post(
     if (Boolean(request.user))
       response.status(400).json({
         success: false,
-        error: { authenticated: true },
+        errors: [
+          {
+            path: ["authenticated"],
+            message: "User is already authenticated.",
+          },
+        ],
       });
 
     const { user } = request.body;
@@ -33,18 +38,22 @@ router.post(
         if (duplicate.email === email)
           return response.status(400).json({
             success: false,
-            error: {
-              message: "Email has already been used.",
-              path: ["user", "email"],
-            },
+            errors: [
+              {
+                message: "Email has already been used.",
+                path: ["user", "email"],
+              },
+            ],
           });
         else
           return response.status(400).json({
             success: false,
-            error: {
-              message: "Username is not unique.",
-              path: ["user", "username"],
-            },
+            errors: [
+              {
+                message: "Username is not unique.",
+                path: ["user", "username"],
+              },
+            ],
           });
       }
 
@@ -63,7 +72,7 @@ router.post(
           return response.status(500).json({ success: false });
         }
         if (!user)
-          return response.status(500).json({ success: false, error: info });
+          return response.status(500).json({ success: false, errors: [info] });
 
         request.logIn(user, (error) => {
           if (error) {

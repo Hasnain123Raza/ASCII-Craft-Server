@@ -44,10 +44,12 @@ router.post(
       } else {
         response.status(400).json({
           success: false,
-          error: {
-            path: ["alert"],
-            message: "You need to wait a while before creating an art again.",
-          },
+          errors: [
+            {
+              path: ["alert"],
+              message: "You need to wait a while before creating an art again.",
+            },
+          ],
         });
       }
     } catch (error) {

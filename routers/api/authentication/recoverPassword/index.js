@@ -30,11 +30,13 @@ router.post(
     )
       return response.status(500).json({
         success: false,
-        error: {
-          path: ["alert"],
-          message:
-            "You need to wait a moment before another email can be sent.",
-        },
+        errors: [
+          {
+            path: ["alert"],
+            message:
+              "You need to wait a moment before another email can be sent.",
+          },
+        ],
       });
 
     try {
