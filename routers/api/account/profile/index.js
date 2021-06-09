@@ -16,7 +16,9 @@ router.get("/:userId", async (request, response) => {
           $project: {
             username: "$username",
             createdArtIds: { $reverseArray: "$createdArtIds" },
+            likedArtIds: { $reverseArray: "$likedArtIds" },
             totalArtsCreated: { $size: "$createdArtIds" },
+            totalArtsLiked: { $size: "$likedArtIds" },
           },
         },
         {
@@ -27,17 +29,39 @@ router.get("/:userId", async (request, response) => {
           $group: {
             _id: "$_id",
             username: { $first: "$username" },
-            totalArtsCreated: { $first: "$totalArtsCreated" },
             createdArtIds: { $push: "$createdArtIds" },
+            likedArtIds: { $first: "$likedArtIds" },
+            totalArtsCreated: { $first: "$totalArtsCreated" },
+            totalArtsLiked: { $first: "$totalArtsLiked" },
+          },
+        },
+        { $unwind: { path: "$likedArtIds", preserveNullAndEmptyArrays: true } },
+        { $limit: 3 },
+        {
+          $group: {
+            _id: "$_id",
+            username: { $first: "$username" },
+            createdArtIds: { $first: "$createdArtIds" },
+            likedArtIds: { $push: "$likedArtIds" },
+            totalArtsCreated: { $first: "$totalArtsCreated" },
+            totalArtsLiked: { $first: "$totalArtsLiked" },
           },
         },
       ])
       .exec();
 
-    if (!Boolean(userAggregate))
+    if (!Boolean(userAggregate[0]))
       return response.status(400).json({ success: false });
 
-    const artAggregate = await artModel
+    const {
+      username,
+      createdArtIds,
+      likedArtIds,
+      totalArtsCreated,
+      totalArtsLiked,
+    } = userAggregate[0];
+
+    const createdArts = await artModel
       .aggregate([
         {
           $project: {
@@ -46,18 +70,33 @@ router.get("/:userId", async (request, response) => {
             description: 1,
           },
         },
-        { $match: { _id: { $in: userAggregate[0].createdArtIds } } },
+        { $match: { _id: { $in: createdArtIds } } },
       ])
       .exec();
 
-    const result = {
-      _id: userAggregate[0]._id,
-      username: userAggregate[0].username,
-      totalArtsCreated: userAggregate[0].totalArtsCreated,
-      recentSimplifiedArts: artAggregate,
-    };
+    const likedArts = await artModel
+      .aggregate([
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            description: 1,
+          },
+        },
+        { $match: { _id: { $in: likedArtIds } } },
+      ])
+      .exec();
 
-    return response.status(200).json({ success: true, payload: result });
+    return response.status(200).json({
+      success: true,
+      payload: {
+        username,
+        createdArts,
+        likedArts,
+        totalArtsCreated,
+        totalArtsLiked,
+      },
+    });
   } catch (error) {
     console.log(error);
     return response.status(500).json({ success: false });
