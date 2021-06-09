@@ -5,7 +5,7 @@ export async function getUserArtCount(userId) {
   const userAggregate = await userModel
     .aggregate([
       { $match: { _id: userId } },
-      { $project: { totalArtsCreated: { $size: "$artIds" } } },
+      { $project: { totalArtsCreated: { $size: "$createdArtIds" } } },
     ])
     .exec();
 
@@ -16,14 +16,19 @@ export async function getUserSimplifiedArts(userId, pageIndex, pageSize) {
   const userAggregate = await userModel
     .aggregate([
       { $match: { _id: userId } },
-      { $project: { _id: 1, artIds: { $reverseArray: "$artIds" } } },
-      { $unwind: { path: "$artIds", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          createdArtIds: { $reverseArray: "$createdArtIds" },
+        },
+      },
+      { $unwind: { path: "$createdArtIds", preserveNullAndEmptyArrays: true } },
       { $skip: pageIndex * pageSize },
       { $limit: pageSize },
       {
         $group: {
           _id: "$_id",
-          artIds: { $push: "$artIds" },
+          createdArtIds: { $push: "$createdArtIds" },
         },
       },
     ])
@@ -32,7 +37,7 @@ export async function getUserSimplifiedArts(userId, pageIndex, pageSize) {
   if (userAggregate.length === 0) return [];
 
   const userData = userAggregate[0];
-  const userArtIds = userData.artIds;
+  const userArtIds = userData.createdArtIds;
 
   const simplifiedArts = await artModel
     .aggregate([

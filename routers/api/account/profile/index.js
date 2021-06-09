@@ -15,18 +15,20 @@ router.get("/:userId", async (request, response) => {
         {
           $project: {
             username: "$username",
-            artIds: { $reverseArray: "$artIds" },
-            totalArtsCreated: { $size: "$artIds" },
+            createdArtIds: { $reverseArray: "$createdArtIds" },
+            totalArtsCreated: { $size: "$createdArtIds" },
           },
         },
-        { $unwind: { path: "$artIds", preserveNullAndEmptyArrays: true } },
+        {
+          $unwind: { path: "$createdArtIds", preserveNullAndEmptyArrays: true },
+        },
         { $limit: 3 },
         {
           $group: {
             _id: "$_id",
             username: { $first: "$username" },
             totalArtsCreated: { $first: "$totalArtsCreated" },
-            artIds: { $push: "$artIds" },
+            createdArtIds: { $push: "$createdArtIds" },
           },
         },
       ])
@@ -44,7 +46,7 @@ router.get("/:userId", async (request, response) => {
             description: 1,
           },
         },
-        { $match: { _id: { $in: userAggregate[0].artIds } } },
+        { $match: { _id: { $in: userAggregate[0].createdArtIds } } },
       ])
       .exec();
 

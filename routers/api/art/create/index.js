@@ -34,7 +34,7 @@ router.post(
         await userModel.updateOne(
           { _id: userId },
           {
-            $push: { artIds: savedResponse._id },
+            $push: { createdArtIds: savedResponse._id },
             $set: { artCreateCooldown: currentDate + 60 * 1000 },
           },
           {}

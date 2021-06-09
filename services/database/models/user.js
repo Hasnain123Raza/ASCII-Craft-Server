@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    artIds: [mongoose.Schema.Types.ObjectId],
+    createdArtIds: [mongoose.Schema.Types.ObjectId],
+    likedArtIds: [mongoose.Schema.Types.ObjectId],
     artCreateCooldown: {
       type: Number,
       default: 0,
