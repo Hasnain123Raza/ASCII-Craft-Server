@@ -8,6 +8,7 @@ export async function getAllArtCount() {
 export async function getAllSimplifiedArts(pageIndex, pageSize) {
   return await artModel
     .aggregate([
+      { $sort: { likes: -1, created: -1 } },
       { $project: { _id: 1, title: 1, description: 1 } },
       { $skip: pageIndex * pageSize },
       { $limit: pageSize },
